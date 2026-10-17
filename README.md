@@ -8,14 +8,15 @@ original look:
 - a fixed header with a waffle button, your `Brand`, the active
   application's name, its links (a slide-out menu on narrower screens) and
   your `Controls` on the right;
-- a waffle panel listing every application and its links, with Settings in
-  its footer;
+- a waffle panel listing every application and its links, each application
+  with its status dot, and Settings in its footer;
 - pages below the header with 1em side padding.
 
 It is one of denim-fabric's interchangeable bars. It exports **exactly the
 same members as
 [denim-fabric-sidebar](https://github.com/MrDavid5465/denim-fabric-sidebar)**
-(`Shell`, the default export, and everything from denim-fabric and the
+(`Shell`, the default export, the role exports `Bar`, `BarNav`, `BarLink`,
+`AppSwitcher` and `StatusDot`, and everything from denim-fabric and the
 core), so switching bars is an import-path change. An app clones one bar
 and ships only that one.
 
@@ -142,7 +143,7 @@ denim's README), plus:
 | `themes` | theme builders keyed `<mode>-<color>` plus `default`; default `THEMES` |
 | `Logo` | splash-screen logo |
 | `Brand` | icon next to the waffle button |
-| `Controls` | right side of the header; on narrow screens it also opens the link menu |
+| `Controls` | right side of the header, always visible; on narrow screens clicking it also opens the link menu |
 | `ExternalApps` | extra content at the top of the waffle panel |
 | `breakpoints` | `{ medium, wide }` in px, default `{ medium: 700, wide: 1200 }`: the layout MasterDetail and `useLayout()` see (the header's own links switch at ~1260px) |
 | `welcome` | the `/` page when there is no `RootComponent` and no launch page |
@@ -153,7 +154,9 @@ denim's README), plus:
 - The header shows the active application's name; its `links` sit in the
   header from ~1260px wide and in a slide-out menu (the menu button, or
   your `Controls`) below that. The active link is underlined.
-- `group`, `icon` and status dots are ignored here.
+- Each application in the waffle panel shows its status dot beside its
+  name (`useAppStatus`, or the app's `useReportAppStatus`); an app without
+  a status shows none. `group` and `icon` are ignored here.
 - Pages sit below the fixed header with 1em side padding and grow with
   their content. `FullBleed` fills the area under the header edge to edge
   (the bar sets `--denim-content-padding-inline: 1em`,
@@ -186,21 +189,34 @@ Clone denim-fabric-sidebar next to it and change the import:
 +import Shell from './lib/denim-fabric-sidebar';
 ```
 
-The props stay valid: the sidebar uses `title` and `SidebarFooter` and
-ignores `Controls` and `ExternalApps`. Every other import (from the bar,
+The props stay valid: the sidebar uses `title`, `SidebarFooter` and
+`Controls` (in its footer and the phone's top bar) and ignores
+`ExternalApps`. Every other import (from the bar,
 from `denim-fabric` or the core) is the same member in both. Then remove
 this folder.
 
 ## Same exports as every bar
 
-`index.ts` is `export * from '../denim-fabric'` plus `Shell` and the
-default export, the surface defined in denim-fabric's
+`index.ts` is `export * from '../denim-fabric'` plus `Shell`, the default
+export and the role exports, the surface defined in denim-fabric's
 `shared/barContract.ts`. `parity.check.ts` fails your app's `tsc` if this
 bar's exports drift from it; denim-fabric's `scripts/check-bar-parity.mjs`
-also compares type-only exports. The header's building blocks are not on
-the surface: import them from `./lib/denim-fabric-topbar/TopBarShell/Header`
-(`Header`, `HeaderProps`), `.../NavBar`, `.../AppNavBar`, `.../HeaderLink`
-when you vary the bar.
+also compares type-only exports and names a missing role.
+
+The header's building blocks are exported under the role names every bar
+uses, each typed with its role's props:
+
+| Role | Here | Its own extra props |
+|---|---|---|
+| `Bar` | `Header`: the fixed header, with the waffle panel | `ExternalApps` |
+| `BarNav` | `NavBar`: the app's links from ~1260px, the link menu below | `Controls` |
+| `BarLink` | `HeaderLink` | none |
+| `AppSwitcher` | `AppNavBar`: the waffle panel; on its own (no `isOpen`) it draws its waffle button and opens itself | `isOpen`, `dismissPanel`, `ExternalApps` |
+| `StatusDot` | denim-fabric's shared `StatusDot` | `overlay`, `className` |
+
+For the extra props, import the component by its own name from
+`./lib/denim-fabric-topbar/TopBarShell/Header` (`Header`, `HeaderProps`),
+`.../NavBar`, `.../AppNavBar`, `.../HeaderLink` when you vary the bar.
 
 ## Verification
 
@@ -208,7 +224,9 @@ In a Vite + React + TS app with the packages side by side and a read-only
 GraphQL mock: strict `tsc` over the setup above and master-detail screens;
 the parity check; pixel-identical to the pre-split top bar in Chromium at
 1400px, 900px, 800px and 390px (touch) for home, a list, show, new, a plain
-page, the waffle panel, the Settings dialog and the link menu;
+page, the waffle panel, the Settings dialog and the link menu (and again
+after the role exports, 2026-10-16: unchanged except the waffle panel's new
+status dots);
 `AdminMasterDetail` and `MasterDetail` at each width (list | detail, the
 phone's back bar); a full-bleed canvas; no console errors.
 
@@ -216,12 +234,12 @@ phone's back bar); a full-bleed canvas; no console errors.
 
 | Path | What it is |
 |---|---|
-| `index.ts` | the bar's exports (the shared surface + `Shell` + default) |
+| `index.ts` | the bar's exports (the shared surface + `Shell` + default + the role exports) |
 | `parity.check.ts` | the export-parity check |
 | `TopBarShell/index.tsx` | `TopBarShell` (the `Shell`) |
 | `TopBarShell/Header.tsx` | the fixed header |
 | `TopBarShell/NavBar.tsx` | the active app's links and `Controls`, and the narrow-screen link menu |
-| `TopBarShell/AppNavBar.tsx` | the waffle panel, with Settings |
+| `TopBarShell/AppNavBar.tsx` | the waffle panel, with status dots and Settings |
 | `TopBarShell/HeaderLink.tsx` | a header link |
 | `TopBarShell/styles.ts` | the bar's styles, registered with `getStyle()` |
 

@@ -7,16 +7,21 @@ import { useNavigate } from 'react-router-dom';
 import { useNav } from '../../denim';
 import { getTopBarStyle as getStyle } from './styles';
 import { HeaderLink } from './HeaderLink';
+import type { BarNavProps } from '../../denim-fabric/shared/barContract';
 
-interface Props {
+export interface NavBarProps extends BarNavProps {
+  /** The app's Controls, at the right end (Header passes ShellProps.Controls). */
   Controls?: React.FC<any>;
-  className: string;
 }
 
-export const NavBar: React.FC<Props> = ({ Controls, className }) => {
+/**
+ * The package exports it as the role `BarNav` (props: BarNavProps): an
+ * application's links, the active one's by default.
+ */
+export const NavBar: React.FC<NavBarProps> = ({ Controls, className, app: appProp, onNavigate }) => {
   const navigate = useNavigate();
   const nav = useNav();
-  const app = nav.activeApp;
+  const app = appProp ?? nav.activeApp;
   const theme = getTheme();
   const style = getStyle();
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -35,7 +40,12 @@ export const NavBar: React.FC<Props> = ({ Controls, className }) => {
             tokens={{ childrenGap: '0.77em' }}
           >
             {(app.links ?? []).map(l => (
-              <HeaderLink key={l.path} to={nav.linkUrl(app, l)} active={nav.isLinkActive(app, l.path)}>
+              <HeaderLink
+                key={l.path}
+                to={nav.linkUrl(app, l)}
+                active={nav.isLinkActive(app, l.path)}
+                onClick={onNavigate}
+              >
                 {l.text}
               </HeaderLink>
             ))}
@@ -66,11 +76,12 @@ export const NavBar: React.FC<Props> = ({ Controls, className }) => {
         >
           {app && (
             <Nav
-              selectedKey={nav.activeLink ? nav.linkUrl(app, nav.activeLink) : undefined}
+              selectedKey={nav.activeLink && nav.isAppActive(app) ? nav.linkUrl(app, nav.activeLink) : undefined}
               onLinkClick={(ev?: any, item?: INavLink) => {
                 ev?.preventDefault();
                 item && navigate(item.url);
                 dismissNav();
+                onNavigate?.();
               }}
               groups={[
                 {

@@ -7,13 +7,14 @@ import { getTopBarStyle as getStyle } from './styles';
 import { AppNavBar } from './AppNavBar';
 import { NavBar } from './NavBar';
 import { HeaderLink } from './HeaderLink';
+import type { BarProps } from '../../denim-fabric/shared/barContract';
 
-export interface HeaderProps {
-  Brand?: React.FC<any>;
-  Controls?: React.FC<any>;
+export interface HeaderProps extends BarProps {
+  /** Extra content at the top of the waffle panel (ShellProps.ExternalApps). */
   ExternalApps?: React.FC<any>;
 }
 
+/** The package exports it as the role `Bar` (props: BarProps). */
 export const Header: React.FC<HeaderProps> = ({ Brand, Controls, ExternalApps }) => {
   const [isOpen, setIsOpen] = useState(false);
   const nav = useNav();

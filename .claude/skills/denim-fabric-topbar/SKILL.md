@@ -8,8 +8,10 @@ license: MIT
 
 One of denim-fabric's interchangeable bars: Denim's original look. It
 exports exactly what denim-fabric-sidebar exports (`Shell`, the default
-export, and everything from denim-fabric and the core), so an app that
-switches bars changes one import. Shared pieces (master-detail, the layout
+export, the role exports `Bar` = `Header`, `BarNav` = `NavBar`, `BarLink`
+= `HeaderLink`, `AppSwitcher` = `AppNavBar`, `StatusDot`, and everything
+from denim-fabric and the core), so an app that switches bars changes one
+import. Shared pieces (master-detail, the layout
 hook, `FullBleed`, theming, Settings, getStyle, Photo) are in denim-fabric's
 `denim-fabric` skill.
 
@@ -28,8 +30,10 @@ import Shell from './lib/denim-fabric-topbar';
   `Controls` on the right. Below that width the links move into a
   slide-out menu, opened by a menu button, or by clicking `Controls` when
   you pass them.
-- **Waffle panel**: every application and its links (Fluent `Nav`),
-  `ExternalApps` at the top, the Settings button in its footer.
+- **Waffle panel**: every application and its links (Fluent `Nav`), each
+  application with its status dot after its name (the core's
+  `useAppStatus`; none while an app has no status), `ExternalApps` at the
+  top, the Settings button in its footer.
 - **Pages** below the header, 1em side padding, growing with their content.
 
 ## Props it uses
@@ -38,7 +42,7 @@ import Shell from './lib/denim-fabric-topbar';
 `breakpoints` (only for the layout MasterDetail and `useLayout()` see; the
 header's own breakpoints are fixed), plus every `<DenimProvider>` prop.
 `title` and `SidebarFooter` are the sidebar's: accepted and ignored here.
-`group`, `icon` and status dots are ignored too.
+`group` and `icon` are ignored too.
 
 ## Under the top bar
 
@@ -70,11 +74,14 @@ on one element (the look was verified pixel-identical with this order).
 ## Changing it
 
 - Props first (`Brand`, `Controls`, `ExternalApps`, `welcome`, `themes`).
+- A part on its own: the role exports (`Bar`, `BarNav`, `BarLink`,
+  `AppSwitcher`, `StatusDot`), which take exactly the role's props and so
+  work under either bar. For a part's extra props (`AppNavBar`'s `isOpen`,
+  `Header`'s `ExternalApps`), import it by name from the folder
+  (`./lib/denim-fabric-topbar/TopBarShell/Header`).
 - Then copy `TopBarShell/` into your app and edit the copy; its parts are
   `Header`, `NavBar` (links + Controls + link menu), `AppNavBar` (waffle
-  panel), `HeaderLink`, `styles.ts`. Import them from the folder
-  (`./lib/denim-fabric-topbar/TopBarShell/Header`); they are not on the
-  package's export surface.
+  panel), `HeaderLink`, `styles.ts`.
 - Never add a member to `index.ts` alone: the export surface is shared with
   every bar (`parity.check.ts` fails your `tsc`). See `write-a-denim-skin`.
 
