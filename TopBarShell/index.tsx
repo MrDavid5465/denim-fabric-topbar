@@ -32,6 +32,7 @@ const WITHOUT_HEADER = { ...contentVars(false), top: '0em' };
 
 const TopBarLayout: React.FC<OwnProps> = ({
   themes,
+  favicon,
   Logo = DenimLogo,
   Brand,
   Controls,
@@ -41,7 +42,7 @@ const TopBarLayout: React.FC<OwnProps> = ({
 }) => {
   const { status, RootComponent } = useDenim();
   const nav = useNav();
-  const themeKey = useFluentTheme(themes);
+  const themeKey = useFluentTheme(themes, favicon);
   const layoutContext = useSimpleShellLayout(breakpoints);
 
   if (status !== 'ready') {
