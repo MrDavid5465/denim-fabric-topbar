@@ -141,6 +141,7 @@ denim's README), plus:
 | Prop | What it does here |
 |---|---|
 | `themes` | theme builders keyed `<mode>-<color>` plus `default`; default `THEMES` |
+| `favicon` | `(color) => svg` for the tab icon in the theme colour, for apps with their own icon; default the Denim mark |
 | `Logo` | splash-screen logo |
 | `Brand` | icon next to the waffle button |
 | `Controls` | right side of the header, always visible; on narrow screens clicking it also opens the link menu |
